@@ -42,6 +42,7 @@ Vector2 *spotsPositions = NULL;
 int *sign = NULL;
 int *ballSide = NULL;
 float direction[numAngles] = {PI / 4, 37 * PI / 180, 16 * PI / 180, 15 * PI / 180};
+Color ballsColor[] = {BLUE, ORANGE, RED};
 
 int main(void)
 {
@@ -242,7 +243,7 @@ void DrawGameState()
     DrawText(TextFormat("Score: %i", score), 15, 60, 16, BLACK);
     for (int i = 0; i < numCircles; i++)
     {
-        DrawCircle(spotsPositions[i].x, spotsPositions[i].y, 25, Fade(BLACK, alpha));
+        DrawCircle(spotsPositions[i].x, spotsPositions[i].y, 25, ballsColor[i]);
     }
 }
 
