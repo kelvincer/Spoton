@@ -19,7 +19,7 @@ static float alpha = 1.0f;
 static int frameCounter = 0;
 static int interval = 1;
 static Vector2 speed = {3 / 2, 4 / 2};
-static int levels = 1;
+static int level = 1;
 static int removeSpotIndex = -1;
 
 //------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ Vector2 *spotsPositions = NULL;
 int *sign = NULL;
 int *ballSide = NULL;
 float direction[numAngles] = {PI / 4, 37 * PI / 180, 16 * PI / 180, 15 * PI / 180};
-Color ballsColor[] = {BLUE, ORANGE, RED};
+Color *ballsColor = NULL;
 
 int main(void)
 {
@@ -96,11 +96,6 @@ void UpdateGame(void)
             {
                 removeSpotIndex = i;
             }
-        }
-
-        if (frameCounter == 0)
-        {
-            ballSide[i] = GetRandomValue(1, 4);
         }
 
         // top side
@@ -177,6 +172,19 @@ void UpdateGame(void)
 
     ResizeArrays();
     removeSpotIndex = -1;
+
+    if (numCircles == 0 && level <= 2)
+    {
+        free(sign);
+        free(spotsPositions);
+        free(ballSide);
+        free(ballsColor);
+        level++;
+        //speed = (Vector2){speed.x * 2, speed.y * 2};
+        numCircles = 3;
+        SetupInitialGameState();
+    }
+
     frameCounter++;
 }
 
@@ -223,10 +231,14 @@ void SetupInitialGameState()
     sign = calloc(numCircles, sizeof(int));
     spotsPositions = calloc(numCircles, sizeof(Vector2));
     ballSide = calloc(numCircles, sizeof(int));
+    ballsColor = calloc(3, sizeof(Color));
     SetPlayerLives();
+    Color colors[] = {BLUE, ORANGE, RED};
     for (int i = 0; i < numCircles; i++)
     {
         spotsPositions[i] = (Vector2){GetRandomValue(70, 730), GetRandomValue(70, 380)};
+        ballSide[i] = GetRandomValue(1, 4);
+        ballsColor[i] = colors[i];
     }
 }
 
@@ -239,7 +251,7 @@ void DrawGameState()
     DrawRectangle(50, 70, 20, 310, YELLOW);  // left side
     DrawRectangle(730, 70, 20, 310, YELLOW); // right side
     DrawText(gameName, 10, 10, 10, DARKGRAY);
-    DrawText(TextFormat("Level: %i", levels), 15, 30, 16, BLACK);
+    DrawText(TextFormat("Level: %i", level), 15, 30, 16, BLACK);
     DrawText(TextFormat("Score: %i", score), 15, 60, 16, BLACK);
     for (int i = 0; i < numCircles; i++)
     {
@@ -263,6 +275,7 @@ void ResizeArrays()
         int *localSign = calloc(numCircles, sizeof(int));
         Vector2 *localSpotsPositions = calloc(numCircles, sizeof(Vector2));
         int *localBallSide = calloc(numCircles, sizeof(int));
+        Color *localBallColors = calloc(numCircles, sizeof(Color));
         int j = 0;
         for (int i = 0; i < numCircles + 1; i++)
         {
@@ -290,13 +303,24 @@ void ResizeArrays()
                 j++;
             }
         }
-        
+        j = 0;
+        for (int i = 0; i < numCircles + 1; i++)
+        {
+            if (removeSpotIndex != i)
+            {
+                localBallColors[j] = ballsColor[i];
+                j++;
+            }
+        }
+
         free(sign);
         free(spotsPositions);
         free(ballSide);
+        free(ballsColor);
 
         sign = localSign;
         spotsPositions = localSpotsPositions;
         ballSide = localBallSide;
+        ballsColor = localBallColors;
     }
 }
