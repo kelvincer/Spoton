@@ -5,6 +5,14 @@
 #include <math.h>
 #include "raylib.h"
 
+typedef struct Spot
+{
+    Vector2 position;
+    Color color;
+    int sign;
+    int ballSide;
+} Spot;
+
 static const int screenWidth = 800;
 static const int screenHeight = 450;
 
@@ -38,11 +46,8 @@ void SetupInitialGameState();
 void DrawGameState();
 void ResizeArrays();
 Vector2 livesPosition[numLives];
-Vector2 *spotsPositions = NULL;
-int *sign = NULL;
-int *ballSide = NULL;
 float direction[numAngles] = {PI / 4, 37 * PI / 180, 16 * PI / 180, 15 * PI / 180};
-Color *ballsColor = NULL;
+Spot *spots = NULL;
 
 int main(void)
 {
@@ -92,82 +97,82 @@ void UpdateGame(void)
             puts("click buttton");
             Vector2 clickPosition = GetMousePosition();
 
-            if (CheckCollisionPointCircle(clickPosition, (Vector2){spotsPositions[i].x, spotsPositions[i].y}, circleRadius))
+            if (CheckCollisionPointCircle(clickPosition, spots[i].position, circleRadius))
             {
                 removeSpotIndex = i;
             }
         }
 
         // top side
-        if (CheckCollisionCircleRec((Vector2){spotsPositions[i].x, spotsPositions[i].y}, circleRadius, (Rectangle){50, 50, 700, 20}))
+        if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){50, 50, 700, 20}))
         {
-            sign[i] = GetRandomValue(0, 1);
-            switch (sign[i])
+            spots[i].sign = GetRandomValue(0, 1);
+            switch (spots[i].sign)
             {
             case 0:
-                ballSide[i] = 1;
+                spots[i].ballSide = 1;
                 break;
             case 1:
-                ballSide[i] = 2;
+                spots[i].ballSide = 2;
                 break;
             }
         } // right side
-        else if (CheckCollisionCircleRec((Vector2){spotsPositions[i].x, spotsPositions[i].y}, circleRadius, (Rectangle){730, 70, 20, 310}))
+        else if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){730, 70, 20, 310}))
         {
-            sign[i] = GetRandomValue(0, 1);
-            switch (sign[i])
+            spots[i].sign = GetRandomValue(0, 1);
+            switch (spots[i].sign)
             {
             case 0:
-                ballSide[i] = 4;
+                spots[i].ballSide = 4;
                 break;
             case 1:
-                ballSide[i] = 1;
+                spots[i].ballSide = 1;
                 break;
             }
         } // bottom side
-        else if (CheckCollisionCircleRec((Vector2){spotsPositions[i].x, spotsPositions[i].y}, circleRadius, (Rectangle){50, 380, 700, 20}))
+        else if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){50, 380, 700, 20}))
         {
-            sign[i] = GetRandomValue(0, 1);
-            switch (sign[i])
+            spots[i].sign = GetRandomValue(0, 1);
+            switch (spots[i].sign)
             {
             case 0:
-                ballSide[i] = 4;
+                spots[i].ballSide = 4;
                 break;
             case 1:
-                ballSide[i] = 3;
+                spots[i].ballSide = 3;
                 break;
             }
         } // left side
-        else if (CheckCollisionCircleRec((Vector2){spotsPositions[i].x, spotsPositions[i].y}, circleRadius, (Rectangle){50, 70, 20, 310}))
+        else if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){50, 70, 20, 310}))
         {
-            sign[i] = GetRandomValue(0, 1);
-            switch (sign[i])
+            spots[i].sign = GetRandomValue(0, 1);
+            switch (spots[i].sign)
             {
             case 0:
-                ballSide[i] = 3;
+                spots[i].ballSide = 3;
                 break;
             case 1:
-                ballSide[i] = 2;
+                spots[i].ballSide = 2;
                 break;
             }
         }
 
-        switch (ballSide[i])
+        switch (spots[i].ballSide)
         {
         case 1:
-            spotsPositions[i] = (Vector2){spotsPositions[i].x - speed.x, spotsPositions[i].y + speed.y};
+            spots[i].position = (Vector2){spots[i].position.x - speed.x, spots[i].position.y + speed.y};
             break;
         case 2:
-            spotsPositions[i] = (Vector2){spotsPositions[i].x + speed.x, spotsPositions[i].y + speed.y};
+            spots[i].position = (Vector2){spots[i].position.x + speed.x, spots[i].position.y + speed.y};
             break;
         case 3:
-            spotsPositions[i] = (Vector2){spotsPositions[i].x + speed.x, spotsPositions[i].y - speed.y};
+            spots[i].position = (Vector2){spots[i].position.x + speed.x, spots[i].position.y - speed.y};
             break;
         case 4:
-            spotsPositions[i] = (Vector2){spotsPositions[i].x - speed.x, spotsPositions[i].y - speed.y};
+            spots[i].position = (Vector2){spots[i].position.x - speed.x, spots[i].position.y - speed.y};
             break;
         }
-        printf("ballside: %d\n", ballSide[i]);
+        printf("ballside: %d\n", spots[i].ballSide);
     }
 
     ResizeArrays();
@@ -175,12 +180,8 @@ void UpdateGame(void)
 
     if (numCircles == 0 && level <= 2)
     {
-        free(sign);
-        free(spotsPositions);
-        free(ballSide);
-        free(ballsColor);
+        free(spots);
         level++;
-        //speed = (Vector2){speed.x * 2, speed.y * 2};
         numCircles = 3;
         SetupInitialGameState();
     }
@@ -228,17 +229,16 @@ void SetPlayerLives()
 
 void SetupInitialGameState()
 {
-    sign = calloc(numCircles, sizeof(int));
-    spotsPositions = calloc(numCircles, sizeof(Vector2));
-    ballSide = calloc(numCircles, sizeof(int));
-    ballsColor = calloc(3, sizeof(Color));
     SetPlayerLives();
     Color colors[] = {BLUE, ORANGE, RED};
+
+    spots = calloc(numCircles, sizeof(Spot));
+
     for (int i = 0; i < numCircles; i++)
     {
-        spotsPositions[i] = (Vector2){GetRandomValue(70, 730), GetRandomValue(70, 380)};
-        ballSide[i] = GetRandomValue(1, 4);
-        ballsColor[i] = colors[i];
+        spots[i].position = (Vector2){GetRandomValue(70, 730), GetRandomValue(70, 380)};
+        spots[i].color = colors[i];
+        spots[i].ballSide = GetRandomValue(1, 4);
     }
 }
 
@@ -255,7 +255,7 @@ void DrawGameState()
     DrawText(TextFormat("Score: %i", score), 15, 60, 16, BLACK);
     for (int i = 0; i < numCircles; i++)
     {
-        DrawCircle(spotsPositions[i].x, spotsPositions[i].y, 25, ballsColor[i]);
+        DrawCircle(spots[i].position.x, spots[i].position.y, 25, spots[i].color);
     }
 }
 
@@ -272,55 +272,18 @@ void ResizeArrays()
             return;
         }
 
-        int *localSign = calloc(numCircles, sizeof(int));
-        Vector2 *localSpotsPositions = calloc(numCircles, sizeof(Vector2));
-        int *localBallSide = calloc(numCircles, sizeof(int));
-        Color *localBallColors = calloc(numCircles, sizeof(Color));
+        Spot *localSpots = calloc(numCircles, sizeof(Spot));
         int j = 0;
         for (int i = 0; i < numCircles + 1; i++)
         {
             if (removeSpotIndex != i)
             {
-                localSpotsPositions[j] = spotsPositions[i];
-                j++;
-            }
-        }
-        j = 0;
-        for (int i = 0; i < numCircles + 1; i++)
-        {
-            if (removeSpotIndex != i)
-            {
-                localSign[j] = sign[i];
-                j++;
-            }
-        }
-        j = 0;
-        for (int i = 0; i < numCircles + 1; i++)
-        {
-            if (removeSpotIndex != i)
-            {
-                localBallSide[j] = ballSide[i];
-                j++;
-            }
-        }
-        j = 0;
-        for (int i = 0; i < numCircles + 1; i++)
-        {
-            if (removeSpotIndex != i)
-            {
-                localBallColors[j] = ballsColor[i];
+                localSpots[j] = spots[i];
                 j++;
             }
         }
 
-        free(sign);
-        free(spotsPositions);
-        free(ballSide);
-        free(ballsColor);
-
-        sign = localSign;
-        spotsPositions = localSpotsPositions;
-        ballSide = localBallSide;
-        ballsColor = localBallColors;
+        free(spots);
+        spots = localSpots;
     }
 }
