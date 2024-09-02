@@ -64,7 +64,7 @@ Spot *spots = NULL;
 int main(void)
 {
     // initialization
-    InitWindow(screenWidth, screenHeight, "Window Title");
+    InitWindow(screenWidth, screenHeight, "SPOTON");
     InitGame();
     SetTargetFPS(fps);
 
