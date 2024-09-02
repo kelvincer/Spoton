@@ -29,6 +29,9 @@ static int interval = 1;
 static Vector2 speed = {3 / 2, 4 / 2};
 static int level = 1;
 static int removeSpotIndex = -1;
+bool gameOver = false;
+bool waitNextLevel = false;
+static int waitPeriodNextLevel = 5;
 
 //------------------------------------------------------------------------------------
 // Module Functions Declaration (local)
@@ -44,7 +47,9 @@ void DrawPlayerLives();
 void SetPlayerLives();
 void SetupInitialGameState();
 void DrawGameState();
-void ResizeArrays();
+void UpdateSpots();
+void ReInitGame();
+void DrawWaitMessage();
 Vector2 livesPosition[numLives];
 float direction[numAngles] = {PI / 4, 37 * PI / 180, 16 * PI / 180, 15 * PI / 180};
 Spot *spots = NULL;
@@ -77,113 +82,145 @@ void InitGame(void)
 
 void UpdateGame(void)
 {
-    if (IsKeyPressed('A'))
+    if (!gameOver)
     {
-        speed.x += 5;
-        speed.y += 5;
-    }
-
-    if (IsKeyPressed('S'))
-    {
-        speed.x -= 3;
-        speed.y -= 3;
-    }
-
-    for (int i = 0; i < numCircles; i++)
-    {
-
-        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        if (IsKeyPressed('A'))
         {
-            puts("click buttton");
-            Vector2 clickPosition = GetMousePosition();
+            speed.x += 5;
+            speed.y += 5;
+        }
 
-            if (CheckCollisionPointCircle(clickPosition, spots[i].position, circleRadius))
+        if (IsKeyPressed('S'))
+        {
+            speed.x -= 3;
+            speed.y -= 3;
+        }
+
+        if (!waitNextLevel)
+        {
+            for (int i = 0; i < numCircles; i++)
             {
-                removeSpotIndex = i;
+
+                if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+                {
+                    puts("click buttton");
+                    Vector2 clickPosition = GetMousePosition();
+
+                    if (CheckCollisionPointCircle(clickPosition, spots[i].position, circleRadius))
+                    {
+                        removeSpotIndex = i;
+                    }
+                }
+
+                // top side
+                if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){50, 50, 700, 20}))
+                {
+                    spots[i].sign = GetRandomValue(0, 1);
+                    switch (spots[i].sign)
+                    {
+                    case 0:
+                        spots[i].ballSide = 1;
+                        break;
+                    case 1:
+                        spots[i].ballSide = 2;
+                        break;
+                    }
+                } // right side
+                else if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){730, 70, 20, 310}))
+                {
+                    spots[i].sign = GetRandomValue(0, 1);
+                    switch (spots[i].sign)
+                    {
+                    case 0:
+                        spots[i].ballSide = 4;
+                        break;
+                    case 1:
+                        spots[i].ballSide = 1;
+                        break;
+                    }
+                } // bottom side
+                else if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){50, 380, 700, 20}))
+                {
+                    spots[i].sign = GetRandomValue(0, 1);
+                    switch (spots[i].sign)
+                    {
+                    case 0:
+                        spots[i].ballSide = 4;
+                        break;
+                    case 1:
+                        spots[i].ballSide = 3;
+                        break;
+                    }
+                } // left side
+                else if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){50, 70, 20, 310}))
+                {
+                    spots[i].sign = GetRandomValue(0, 1);
+                    switch (spots[i].sign)
+                    {
+                    case 0:
+                        spots[i].ballSide = 3;
+                        break;
+                    case 1:
+                        spots[i].ballSide = 2;
+                        break;
+                    }
+                }
+
+                switch (spots[i].ballSide)
+                {
+                case 1:
+                    spots[i].position = (Vector2){spots[i].position.x - speed.x, spots[i].position.y + speed.y};
+                    break;
+                case 2:
+                    spots[i].position = (Vector2){spots[i].position.x + speed.x, spots[i].position.y + speed.y};
+                    break;
+                case 3:
+                    spots[i].position = (Vector2){spots[i].position.x + speed.x, spots[i].position.y - speed.y};
+                    break;
+                case 4:
+                    spots[i].position = (Vector2){spots[i].position.x - speed.x, spots[i].position.y - speed.y};
+                    break;
+                }
+                printf("ballside: %d\n", spots[i].ballSide);
             }
         }
 
-        // top side
-        if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){50, 50, 700, 20}))
+        UpdateSpots();
+        removeSpotIndex = -1;
+
+        if (numCircles == 0 && level == 3)
         {
-            spots[i].sign = GetRandomValue(0, 1);
-            switch (spots[i].sign)
-            {
-            case 0:
-                spots[i].ballSide = 1;
-                break;
-            case 1:
-                spots[i].ballSide = 2;
-                break;
-            }
-        } // right side
-        else if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){730, 70, 20, 310}))
-        {
-            spots[i].sign = GetRandomValue(0, 1);
-            switch (spots[i].sign)
-            {
-            case 0:
-                spots[i].ballSide = 4;
-                break;
-            case 1:
-                spots[i].ballSide = 1;
-                break;
-            }
-        } // bottom side
-        else if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){50, 380, 700, 20}))
-        {
-            spots[i].sign = GetRandomValue(0, 1);
-            switch (spots[i].sign)
-            {
-            case 0:
-                spots[i].ballSide = 4;
-                break;
-            case 1:
-                spots[i].ballSide = 3;
-                break;
-            }
-        } // left side
-        else if (CheckCollisionCircleRec(spots[i].position, circleRadius, (Rectangle){50, 70, 20, 310}))
-        {
-            spots[i].sign = GetRandomValue(0, 1);
-            switch (spots[i].sign)
-            {
-            case 0:
-                spots[i].ballSide = 3;
-                break;
-            case 1:
-                spots[i].ballSide = 2;
-                break;
-            }
+            gameOver = true;
         }
 
-        switch (spots[i].ballSide)
+        if (numCircles == 0 && level <= 2)
         {
-        case 1:
-            spots[i].position = (Vector2){spots[i].position.x - speed.x, spots[i].position.y + speed.y};
-            break;
-        case 2:
-            spots[i].position = (Vector2){spots[i].position.x + speed.x, spots[i].position.y + speed.y};
-            break;
-        case 3:
-            spots[i].position = (Vector2){spots[i].position.x + speed.x, spots[i].position.y - speed.y};
-            break;
-        case 4:
-            spots[i].position = (Vector2){spots[i].position.x - speed.x, spots[i].position.y - speed.y};
-            break;
+            free(spots);
+            spots = NULL;
+            numCircles = 3;
+            SetupInitialGameState();
+            waitNextLevel = true;
         }
-        printf("ballside: %d\n", spots[i].ballSide);
+
+        if (frameCounter % fps == 0 && waitNextLevel)
+        {
+            waitPeriodNextLevel--;
+        }
+
+        if (waitPeriodNextLevel == -1)
+        {
+            waitNextLevel = false;
+            level++;
+            waitPeriodNextLevel = 5;
+        }
     }
-
-    ResizeArrays();
-    removeSpotIndex = -1;
-
-    if (numCircles == 0 && level <= 2)
+    else
     {
-        free(spots);
-        level++;
-        numCircles = 3;
-        SetupInitialGameState();
+        if (IsKeyPressed(KEY_ENTER))
+        {
+            free(spots);
+            ReInitGame();
+        }
     }
 
     frameCounter++;
@@ -193,19 +230,14 @@ void DrawGame(void)
 {
     BeginDrawing();
 
-    {
-        ClearBackground(RAYWHITE);
-        DrawGameState();
-    }
+    ClearBackground(RAYWHITE);
+    DrawGameState();
 
     EndDrawing();
 }
 
 void UnloadGame(void)
 {
-    // free(sign);
-    // free(spotsPositions);
-    // free(ballSide);
 }
 
 void DrawPlayerLives()
@@ -250,16 +282,35 @@ void DrawGameState()
     DrawRectangle(50, 380, 700, 20, YELLOW); // bottom side
     DrawRectangle(50, 70, 20, 310, YELLOW);  // left side
     DrawRectangle(730, 70, 20, 310, YELLOW); // right side
-    DrawText(gameName, 10, 10, 10, DARKGRAY);
+    DrawText(gameName, 10, 10, 15, DARKGRAY);
     DrawText(TextFormat("Level: %i", level), 15, 30, 16, BLACK);
     DrawText(TextFormat("Score: %i", score), 15, 60, 16, BLACK);
-    for (int i = 0; i < numCircles; i++)
+
+    if (gameOver)
     {
-        DrawCircle(spots[i].position.x, spots[i].position.y, 25, spots[i].color);
+        char *textGameOver = "PRESS ENTER TO PLAY AGAIN";
+        int fontSize = 30;
+        DrawText(textGameOver,
+                 screenWidth / 2 - MeasureText(textGameOver, fontSize) / 2,
+                 screenHeight / 2 - fontSize / 2, fontSize, GRAY);
+    }
+    else
+    {
+        if (waitNextLevel)
+        {
+            DrawWaitMessage();
+        }
+        else
+        {
+            for (int i = 0; i < numCircles; i++)
+            {
+                DrawCircle(spots[i].position.x, spots[i].position.y, 25, spots[i].color);
+            }
+        }
     }
 }
 
-void ResizeArrays()
+void UpdateSpots()
 {
     if (removeSpotIndex != -1)
     {
@@ -286,4 +337,23 @@ void ResizeArrays()
         free(spots);
         spots = localSpots;
     }
+}
+
+void ReInitGame()
+{
+    gameOver = false;
+    level = 1;
+    numCircles = 3;
+    score = 0;
+    InitGame();
+}
+
+void DrawWaitMessage()
+{
+    char textWait[50];
+    sprintf(textWait, "NEXT LEVEL IN %d MINUTES", waitPeriodNextLevel);
+    int fontSize = 30;
+    DrawText(textWait,
+             screenWidth / 2 - MeasureText(textWait, fontSize) / 2,
+             screenHeight / 2 - fontSize / 2, fontSize, GRAY);
 }
