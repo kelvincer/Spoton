@@ -32,6 +32,12 @@ static int removeSpotIndex = -1;
 bool gameOver = false;
 bool waitNextLevel = false;
 static int waitPeriodNextLevel = 5;
+static char gameTime[100];
+int currentTime;
+int endTime;
+int levelPlayingTime = 5;
+int remainingTime = 0;
+const int MAX_LEVEL = 3;
 
 //------------------------------------------------------------------------------------
 // Module Functions Declaration (local)
@@ -45,11 +51,12 @@ static void UnloadGame(void); // Unload game
 // -----------------------------------------------------------------------------------
 void DrawPlayerLives();
 void SetPlayerLives();
-void SetupInitialGameState();
+void SetupNewLevelState();
 void DrawGameState();
 void UpdateSpots();
-void ReInitGame();
+void ResetGame();
 void DrawWaitMessage();
+void DrawGameTime();
 Vector2 livesPosition[numLives];
 float direction[numAngles] = {PI / 4, 37 * PI / 180, 16 * PI / 180, 15 * PI / 180};
 Spot *spots = NULL;
@@ -77,7 +84,7 @@ int main(void)
 
 void InitGame(void)
 {
-    SetupInitialGameState();
+    SetupNewLevelState();
 }
 
 void UpdateGame(void)
@@ -183,23 +190,27 @@ void UpdateGame(void)
                 }
                 printf("ballside: %d\n", spots[i].ballSide);
             }
+
+            currentTime = GetTime();
+            remainingTime = endTime - currentTime;
+            sprintf(gameTime, "Time: %02d", remainingTime);
         }
 
         UpdateSpots();
         removeSpotIndex = -1;
 
-        if (numCircles == 0 && level == 3)
+        if ((numCircles == 0 && level == MAX_LEVEL) || (level == MAX_LEVEL && remainingTime == 0))
         {
             gameOver = true;
+            sprintf(gameTime, "Time: %02d", 0);
         }
 
-        if (numCircles == 0 && level <= 2)
+        if ((numCircles == 0 && level <= 2) || remainingTime == 0)
         {
             free(spots);
             spots = NULL;
-            numCircles = 3;
-            SetupInitialGameState();
             waitNextLevel = true;
+            sprintf(gameTime, "Time: %02d", 0);
         }
 
         if (frameCounter % fps == 0 && waitNextLevel)
@@ -212,6 +223,7 @@ void UpdateGame(void)
             waitNextLevel = false;
             level++;
             waitPeriodNextLevel = 5;
+            SetupNewLevelState();
         }
     }
     else
@@ -219,7 +231,7 @@ void UpdateGame(void)
         if (IsKeyPressed(KEY_ENTER))
         {
             free(spots);
-            ReInitGame();
+            ResetGame();
         }
     }
 
@@ -259,8 +271,9 @@ void SetPlayerLives()
     }
 }
 
-void SetupInitialGameState()
+void SetupNewLevelState()
 {
+    numCircles = 3;
     SetPlayerLives();
     Color colors[] = {BLUE, ORANGE, RED};
 
@@ -272,6 +285,8 @@ void SetupInitialGameState()
         spots[i].color = colors[i];
         spots[i].ballSide = GetRandomValue(1, 4);
     }
+
+    endTime = GetTime() + levelPlayingTime;
 }
 
 void DrawGameState()
@@ -285,6 +300,7 @@ void DrawGameState()
     DrawText(gameName, 10, 10, 15, DARKGRAY);
     DrawText(TextFormat("Level: %i", level), 15, 30, 16, BLACK);
     DrawText(TextFormat("Score: %i", score), 15, 60, 16, BLACK);
+    DrawGameTime();
 
     if (gameOver)
     {
@@ -339,13 +355,13 @@ void UpdateSpots()
     }
 }
 
-void ReInitGame()
+void ResetGame()
 {
     gameOver = false;
     level = 1;
-    numCircles = 3;
     score = 0;
-    InitGame();
+    waitNextLevel = false;
+    SetupNewLevelState();
 }
 
 void DrawWaitMessage()
@@ -356,4 +372,10 @@ void DrawWaitMessage()
     DrawText(textWait,
              screenWidth / 2 - MeasureText(textWait, fontSize) / 2,
              screenHeight / 2 - fontSize / 2, fontSize, GRAY);
+}
+
+void DrawGameTime()
+{
+    int fontSize = 25;
+    DrawText(gameTime, screenWidth - MeasureText(gameTime, fontSize) - 15, 15, fontSize, GRAY);
 }
