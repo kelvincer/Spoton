@@ -144,40 +144,56 @@ void UpdateGame(void)
                 printf("ballside: %d\n", spots[i].ballSide);
             }
 
-            currentTime = GetTime();
-            remainingTime = endTime - currentTime;
-            sprintf(gameTimeText, "Time: %02d", remainingTime);
+            remainingLevelTime = endLevelTime - (int)GetTime();
+            sprintf(gameTimeText, "Time: %02d", remainingLevelTime);
         }
 
         UpdateSpots();
         removeSpotIndex = -1;
 
-        if ((numCircles == 0 && level == MAX_LEVEL) || (level == MAX_LEVEL && remainingTime == 0))
+        if ((numCircles == 0 && level == MAX_LEVEL) || (level == MAX_LEVEL && remainingLevelTime == 0))
         {
             gameOver = true;
             sprintf(gameTimeText, "Time: %02d", 0);
         }
 
-        if ((numCircles == 0 && level <= 2) || remainingTime == 0)
+        if (((numCircles == 0 && level <= 2) || remainingLevelTime == 0) && !waitNextLevel)
         {
             free(spots);
             spots = NULL;
             waitNextLevel = true;
             sprintf(gameTimeText, "Time: %02d", 0);
+            // startFrame = frameCounter;
+            // endWaitFrame = frameCounter + fps * waitPeriodNextLevel;
+            endWaitTime = (int)GetTime() + waitPeriodNextLevel;
         }
 
-        if (frameCounter % fps == 0 && waitNextLevel)
+        if (waitNextLevel)
+        {
+            printf("endtime: %d - time: %d\n", endWaitTime, (int)GetTime());
+            waitPeriodNextLevel = endWaitTime - (int)GetTime();
+        }
+
+        if (waitPeriodNextLevel == 0 && waitNextLevel)
+        {
+            waitNextLevel = false;
+            level++;
+            waitPeriodNextLevel = WAIT_PERIOD;
+            SetupNewLevelState();
+        }
+
+        /* if ((frameCounter - startFrame) % fps == 0 && waitNextLevel)
         {
             waitPeriodNextLevel--;
         }
 
-        if (waitPeriodNextLevel == -1)
+        if ((frameCounter == endWaitFrame) && waitNextLevel)
         {
             waitNextLevel = false;
             level++;
-            waitPeriodNextLevel = 5;
+            waitPeriodNextLevel = WAIT_PERIOD;
             SetupNewLevelState();
-        }
+        } */
     }
     else
     {

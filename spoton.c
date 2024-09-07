@@ -5,10 +5,10 @@
 #include "spoton.h"
 
 static const int numLives = 5;
-const int circleRadius = 25;   
-const int levelPlayingTime = 5;
-int waitPeriodNextLevel = 5;
-int remainingTime = 0;
+const int circleRadius = 25;
+const int levelPlayingTime = 8;
+int waitPeriodNextLevel = WAIT_PERIOD;
+int remainingLevelTime = 0;
 bool waitNextLevel = false;
 int removeSpotIndex = -1;
 int level = 1;
@@ -53,7 +53,7 @@ void SetupNewLevelState()
         spots[i].ballSide = GetRandomValue(1, 4);
     }
 
-    endTime = GetTime() + levelPlayingTime;
+    endLevelTime = (int)GetTime() + levelPlayingTime;
 }
 
 void DrawGameState()
@@ -127,6 +127,7 @@ void ResetGame()
     level = 1;
     score = 0;
     waitNextLevel = false;
+    waitPeriodNextLevel = WAIT_PERIOD;
     SetupNewLevelState();
 }
 

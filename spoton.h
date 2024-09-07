@@ -17,12 +17,13 @@ int removeSpotIndex;
 bool gameOver;
 int waitPeriodNextLevel;
 bool waitNextLevel;
-int remainingTime;
 int numCircles;
 Spot *spots;
 char gameTimeText[100];
-int currentTime;
-int endTime;
+int endLevelTime;
+int remainingLevelTime;
+int endWaitTime;
+int remainingWaitTime;
 
 void DrawPlayerLives();
 void SetPlayerLives();
