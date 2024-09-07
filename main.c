@@ -44,18 +44,6 @@ void UpdateGame(void)
 {
     if (!gameOver)
     {
-        if (IsKeyPressed('A'))
-        {
-            speed.x += 5;
-            speed.y += 5;
-        }
-
-        if (IsKeyPressed('S'))
-        {
-            speed.x -= 3;
-            speed.y -= 3;
-        }
-
         if (!waitNextLevel)
         {
             for (int i = 0; i < numCircles; i++)
@@ -141,7 +129,7 @@ void UpdateGame(void)
                     spots[i].position = (Vector2){spots[i].position.x - speed.x, spots[i].position.y - speed.y};
                     break;
                 }
-                printf("ballside: %d\n", spots[i].ballSide);
+                //printf("ballside: %d\n", spots[i].ballSide);
             }
 
             remainingLevelTime = endLevelTime - (int)GetTime();
@@ -163,37 +151,19 @@ void UpdateGame(void)
             spots = NULL;
             waitNextLevel = true;
             sprintf(gameTimeText, "Time: %02d", 0);
-            // startFrame = frameCounter;
-            // endWaitFrame = frameCounter + fps * waitPeriodNextLevel;
             endWaitTime = (int)GetTime() + waitPeriodNextLevel;
         }
 
         if (waitNextLevel)
         {
-            printf("endtime: %d - time: %d\n", endWaitTime, (int)GetTime());
+            //printf("endtime: %d - time: %d\n", endWaitTime, (int)GetTime());
             waitPeriodNextLevel = endWaitTime - (int)GetTime();
         }
 
         if (waitPeriodNextLevel == 0 && waitNextLevel)
         {
-            waitNextLevel = false;
-            level++;
-            waitPeriodNextLevel = WAIT_PERIOD;
-            SetupNewLevelState();
+            startNewLevel();
         }
-
-        /* if ((frameCounter - startFrame) % fps == 0 && waitNextLevel)
-        {
-            waitPeriodNextLevel--;
-        }
-
-        if ((frameCounter == endWaitFrame) && waitNextLevel)
-        {
-            waitNextLevel = false;
-            level++;
-            waitPeriodNextLevel = WAIT_PERIOD;
-            SetupNewLevelState();
-        } */
     }
     else
     {

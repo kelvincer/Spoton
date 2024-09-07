@@ -14,7 +14,7 @@ int removeSpotIndex = -1;
 int level = 1;
 bool gameOver = false;
 int numCircles = 3;
-Vector2 speed = {3 / 2, 4 / 2};
+Vector2 speed = INITIAL_SPEED;
 int frameCounter = 0;
 static int score = 0;
 static Vector2 livesPosition[numLives];
@@ -59,7 +59,6 @@ void SetupNewLevelState()
 void DrawGameState()
 {
     DrawPlayerLives();
-    // DrawRectangle(50, 50, 700, 350, GRAY);
     DrawRectangle(50, 50, 700, 20, YELLOW);  // top side
     DrawRectangle(50, 380, 700, 20, YELLOW); // bottom side
     DrawRectangle(50, 70, 20, 310, YELLOW);  // left side
@@ -70,11 +69,7 @@ void DrawGameState()
 
     if (gameOver)
     {
-        char *textGameOver = "PRESS ENTER TO PLAY AGAIN";
-        int fontSize = 30;
-        DrawText(textGameOver,
-                 screenWidth / 2 - MeasureText(textGameOver, fontSize) / 2,
-                 screenHeight / 2 - fontSize / 2, fontSize, GRAY);
+        DrawGameOver();
     }
     else
     {
@@ -128,6 +123,7 @@ void ResetGame()
     score = 0;
     waitNextLevel = false;
     waitPeriodNextLevel = WAIT_PERIOD;
+    speed = (Vector2)INITIAL_SPEED;
     SetupNewLevelState();
 }
 
@@ -152,4 +148,29 @@ void DrawScoreAndLevel()
     int fontSize = 16;
     DrawText(TextFormat("Level: %i", level), 10, 30, fontSize, BLACK);
     DrawText(TextFormat("Score: %i", score), 25 + MeasureText("Level: 0", fontSize), 30, fontSize, BLACK);
+}
+
+void DrawGameOver()
+{
+    char scoreText[20];
+    int scoreTextSize = 30;
+    int playAgainTextSize = 16;
+    sprintf(scoreText, "TOTAL SCORE: %d", score);
+    DrawText(scoreText,
+             screenWidth / 2 - MeasureText(scoreText, scoreTextSize) / 2,
+             (screenHeight - scoreTextSize - playAgainTextSize - 15) / 2, scoreTextSize, GREEN);
+    char *gameOverText = "PRESS ENTER TO PLAY AGAIN";
+    DrawText(gameOverText,
+             screenWidth / 2 - MeasureText(gameOverText, playAgainTextSize) / 2,
+             (screenHeight - scoreTextSize - playAgainTextSize - 15) / 2 + scoreTextSize + 15 , playAgainTextSize, GRAY);
+}
+
+void startNewLevel()
+{
+    waitNextLevel = false;
+    level++;
+    waitPeriodNextLevel = WAIT_PERIOD;
+    speed.x += 1.5;
+    speed.y += 1.5;
+    SetupNewLevelState();
 }

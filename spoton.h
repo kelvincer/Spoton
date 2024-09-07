@@ -34,5 +34,7 @@ void ResetGame();
 void DrawWaitMessage();
 void DrawGameTime();
 void DrawScoreAndLevel();
+void DrawGameOver();
+void startNewLevel();
 
 #endif
