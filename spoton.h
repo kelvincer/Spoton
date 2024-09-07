@@ -20,7 +20,7 @@ bool waitNextLevel;
 int remainingTime;
 int numCircles;
 Spot *spots;
-char gameTime[100];
+char gameTimeText[100];
 int currentTime;
 int endTime;
 
@@ -32,5 +32,6 @@ void UpdateSpots();
 void ResetGame();
 void DrawWaitMessage();
 void DrawGameTime();
+void DrawScoreAndLevel();
 
 #endif

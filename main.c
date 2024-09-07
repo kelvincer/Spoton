@@ -146,7 +146,7 @@ void UpdateGame(void)
 
             currentTime = GetTime();
             remainingTime = endTime - currentTime;
-            sprintf(gameTime, "Time: %02d", remainingTime);
+            sprintf(gameTimeText, "Time: %02d", remainingTime);
         }
 
         UpdateSpots();
@@ -155,7 +155,7 @@ void UpdateGame(void)
         if ((numCircles == 0 && level == MAX_LEVEL) || (level == MAX_LEVEL && remainingTime == 0))
         {
             gameOver = true;
-            sprintf(gameTime, "Time: %02d", 0);
+            sprintf(gameTimeText, "Time: %02d", 0);
         }
 
         if ((numCircles == 0 && level <= 2) || remainingTime == 0)
@@ -163,7 +163,7 @@ void UpdateGame(void)
             free(spots);
             spots = NULL;
             waitNextLevel = true;
-            sprintf(gameTime, "Time: %02d", 0);
+            sprintf(gameTimeText, "Time: %02d", 0);
         }
 
         if (frameCounter % fps == 0 && waitNextLevel)
@@ -204,4 +204,3 @@ void DrawGame(void)
 void UnloadGame(void)
 {
 }
-

@@ -13,11 +13,11 @@ bool waitNextLevel = false;
 int removeSpotIndex = -1;
 int level = 1;
 bool gameOver = false;
-int score = 0;
 int numCircles = 3;
-int frameCounter = 0;
 Vector2 speed = {3 / 2, 4 / 2};
-Vector2 livesPosition[numLives];
+int frameCounter = 0;
+static int score = 0;
+static Vector2 livesPosition[numLives];
 
 void DrawPlayerLives()
 {
@@ -65,8 +65,7 @@ void DrawGameState()
     DrawRectangle(50, 70, 20, 310, YELLOW);  // left side
     DrawRectangle(730, 70, 20, 310, YELLOW); // right side
     DrawText(gameName, 10, 10, 15, DARKGRAY);
-    DrawText(TextFormat("Level: %i", level), 15, 30, 16, BLACK);
-    DrawText(TextFormat("Score: %i", score), 15, 60, 16, BLACK);
+    DrawScoreAndLevel();
     DrawGameTime();
 
     if (gameOver)
@@ -144,5 +143,12 @@ void DrawWaitMessage()
 void DrawGameTime()
 {
     int fontSize = 25;
-    DrawText(gameTime, screenWidth - MeasureText(gameTime, fontSize) - 15, 15, fontSize, GRAY);
+    DrawText(gameTimeText, screenWidth - MeasureText(gameTimeText, fontSize) - 15, 15, fontSize, GRAY);
+}
+
+void DrawScoreAndLevel()
+{
+    int fontSize = 16;
+    DrawText(TextFormat("Level: %i", level), 10, 30, fontSize, BLACK);
+    DrawText(TextFormat("Score: %i", score), 25 + MeasureText("Level: 0", fontSize), 30, fontSize, BLACK);
 }
