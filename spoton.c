@@ -63,7 +63,7 @@ void DrawGameState()
     DrawRectangle(50, 380, 700, 20, YELLOW); // bottom side
     DrawRectangle(50, 70, 20, 310, YELLOW);  // left side
     DrawRectangle(730, 70, 20, 310, YELLOW); // right side
-    DrawText(gameName, 10, 10, 15, DARKGRAY);
+    DrawText(GAME_NAME, 10, 10, 15, DARKGRAY);
     DrawScoreAndLevel();
     DrawGameTime();
 
@@ -133,14 +133,14 @@ void DrawWaitMessage()
     sprintf(textWait, "NEXT LEVEL IN %d MINUTES", waitPeriodNextLevel);
     int fontSize = 30;
     DrawText(textWait,
-             screenWidth / 2 - MeasureText(textWait, fontSize) / 2,
-             screenHeight / 2 - fontSize / 2, fontSize, GRAY);
+             SCREEN_WIDTH / 2 - MeasureText(textWait, fontSize) / 2,
+             SCREEN_HEIGHT / 2 - fontSize / 2, fontSize, GRAY);
 }
 
 void DrawGameTime()
 {
     int fontSize = 25;
-    DrawText(gameTimeText, screenWidth - MeasureText(gameTimeText, fontSize) - 15, 15, fontSize, GRAY);
+    DrawText(gameTimeText, SCREEN_WIDTH - MeasureText(gameTimeText, fontSize) - 15, 15, fontSize, GRAY);
 }
 
 void DrawScoreAndLevel()
@@ -157,12 +157,12 @@ void DrawGameOver()
     int playAgainTextSize = 16;
     sprintf(scoreText, "TOTAL SCORE: %d", score);
     DrawText(scoreText,
-             screenWidth / 2 - MeasureText(scoreText, scoreTextSize) / 2,
-             (screenHeight - scoreTextSize - playAgainTextSize - 15) / 2, scoreTextSize, GREEN);
+             SCREEN_WIDTH / 2 - MeasureText(scoreText, scoreTextSize) / 2,
+             (SCREEN_HEIGHT - scoreTextSize - playAgainTextSize - 15) / 2, scoreTextSize, GREEN);
     char *gameOverText = "PRESS ENTER TO PLAY AGAIN";
     DrawText(gameOverText,
-             screenWidth / 2 - MeasureText(gameOverText, playAgainTextSize) / 2,
-             (screenHeight - scoreTextSize - playAgainTextSize - 15) / 2 + scoreTextSize + 15 , playAgainTextSize, GRAY);
+             SCREEN_WIDTH / 2 - MeasureText(gameOverText, playAgainTextSize) / 2,
+             (SCREEN_HEIGHT - scoreTextSize - playAgainTextSize - 15) / 2 + scoreTextSize + 15 , playAgainTextSize, GRAY);
 }
 
 void startNewLevel()

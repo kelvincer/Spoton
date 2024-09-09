@@ -17,9 +17,9 @@ static void UnloadGame(void); // Unload game
 int main(void)
 {
     // initialization
-    InitWindow(screenWidth, screenHeight, windowTitle);
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
     InitGame();
-    SetTargetFPS(fps);
+    SetTargetFPS(FPS);
 
     // game loop
     while (!WindowShouldClose())
