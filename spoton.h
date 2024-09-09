@@ -9,6 +9,7 @@ typedef struct Spot
     int ballSide;
 } Spot;
 
+int numLives;
 Vector2 speed;
 const int circleRadius;
 int frameCounter;
@@ -24,6 +25,8 @@ int endLevelTime;
 int remainingLevelTime;
 int endWaitTime;
 int remainingWaitTime;
+bool isClickOverRectangle;
+int score;
 
 void DrawPlayerLives();
 void SetPlayerLives();
@@ -36,5 +39,6 @@ void DrawGameTime();
 void DrawScoreAndLevel();
 void DrawGameOver();
 void startNewLevel();
+bool isClickInRectangle(Vector2 click);
 
 #endif

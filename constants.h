@@ -8,5 +8,8 @@
 #define WINDOW_TITLE "SPOTON"
 #define GAME_NAME "SpotOn"
 #define FPS 60
+#define MAX_LIVES 5
+#define LEVEL_PLAYING_TIME 30
+
 
 #endif

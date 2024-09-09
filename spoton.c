@@ -4,9 +4,8 @@
 #include "constants.h"
 #include "spoton.h"
 
-static const int numLives = 5;
+int numLives = MAX_LIVES;
 const int circleRadius = 25;
-const int levelPlayingTime = 8;
 int waitPeriodNextLevel = WAIT_PERIOD;
 int remainingLevelTime = 0;
 bool waitNextLevel = false;
@@ -16,8 +15,9 @@ bool gameOver = false;
 int numCircles = 3;
 Vector2 speed = INITIAL_SPEED;
 int frameCounter = 0;
-static int score = 0;
-static Vector2 livesPosition[numLives];
+int score = 0;
+static Vector2 livesPosition[MAX_LIVES];
+bool isClickOverRectangle = false;
 
 void DrawPlayerLives()
 {
@@ -53,7 +53,7 @@ void SetupNewLevelState()
         spots[i].ballSide = GetRandomValue(1, 4);
     }
 
-    endLevelTime = (int)GetTime() + levelPlayingTime;
+    endLevelTime = (int)GetTime() + LEVEL_PLAYING_TIME;
 }
 
 void DrawGameState()
@@ -124,6 +124,7 @@ void ResetGame()
     waitNextLevel = false;
     waitPeriodNextLevel = WAIT_PERIOD;
     speed = (Vector2)INITIAL_SPEED;
+    numLives = MAX_LIVES;
     SetupNewLevelState();
 }
 
@@ -162,7 +163,7 @@ void DrawGameOver()
     char *gameOverText = "PRESS ENTER TO PLAY AGAIN";
     DrawText(gameOverText,
              SCREEN_WIDTH / 2 - MeasureText(gameOverText, playAgainTextSize) / 2,
-             (SCREEN_HEIGHT - scoreTextSize - playAgainTextSize - 15) / 2 + scoreTextSize + 15 , playAgainTextSize, GRAY);
+             (SCREEN_HEIGHT - scoreTextSize - playAgainTextSize - 15) / 2 + scoreTextSize + 15, playAgainTextSize, GRAY);
 }
 
 void startNewLevel()
@@ -173,4 +174,13 @@ void startNewLevel()
     speed.x += 1.5;
     speed.y += 1.5;
     SetupNewLevelState();
+}
+
+bool isClickInRectangle(Vector2 click)
+{
+    if (CheckCollisionPointRec(click, (Rectangle){70, 70, 660, 310}))
+    {
+        return true;
+    }
+    return false;
 }

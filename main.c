@@ -48,15 +48,19 @@ void UpdateGame(void)
         {
             for (int i = 0; i < numCircles; i++)
             {
-
-                if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
                 {
-                    puts("click buttton");
+                    // puts("click button");
                     Vector2 clickPosition = GetMousePosition();
 
                     if (CheckCollisionPointCircle(clickPosition, spots[i].position, circleRadius))
                     {
                         removeSpotIndex = i;
+                    }
+
+                    if (isClickInRectangle(clickPosition))
+                    {
+                        isClickOverRectangle = removeSpotIndex == -1;
                     }
                 }
 
@@ -129,7 +133,13 @@ void UpdateGame(void)
                     spots[i].position = (Vector2){spots[i].position.x - speed.x, spots[i].position.y - speed.y};
                     break;
                 }
-                //printf("ballside: %d\n", spots[i].ballSide);
+                // printf("ballside: %d\n", spots[i].ballSide);
+            }
+
+            if (isClickOverRectangle)
+            {
+                numLives--;
+                isClickOverRectangle = false;
             }
 
             remainingLevelTime = endLevelTime - (int)GetTime();
@@ -139,7 +149,7 @@ void UpdateGame(void)
         UpdateSpots();
         removeSpotIndex = -1;
 
-        if ((numCircles == 0 && level == MAX_LEVEL) || (level == MAX_LEVEL && remainingLevelTime == 0))
+        if ((numCircles == 0 && level == MAX_LEVEL) || (level == MAX_LEVEL && remainingLevelTime == 0) || numLives == 0)
         {
             gameOver = true;
             sprintf(gameTimeText, "Time: %02d", 0);
@@ -156,7 +166,7 @@ void UpdateGame(void)
 
         if (waitNextLevel)
         {
-            //printf("endtime: %d - time: %d\n", endWaitTime, (int)GetTime());
+            // printf("endtime: %d - time: %d\n", endWaitTime, (int)GetTime());
             waitPeriodNextLevel = endWaitTime - (int)GetTime();
         }
 
