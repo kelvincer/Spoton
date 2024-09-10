@@ -14,6 +14,9 @@ static void UpdateGame(void); // Update game (one frame)
 static void DrawGame(void);   // Draw game (one frame)
 static void UnloadGame(void); // Unload game
 
+static bool firstInitialization = true;
+static Sound hit;
+
 int main(void)
 {
     // initialization
@@ -37,6 +40,14 @@ int main(void)
 
 void InitGame(void)
 {
+    if (firstInitialization)
+    {
+        InitAudioDevice();
+        hit = LoadSound("sounds/miss.mp3");
+
+        firstInitialization = false;
+    }
+
     SetupNewLevelState();
 }
 
@@ -56,6 +67,7 @@ void UpdateGame(void)
                     if (CheckCollisionPointCircle(clickPosition, spots[i].position, circleRadius))
                     {
                         removeSpotIndex = i;
+                        PlaySound(hit);
                     }
 
                     if (isClickInRectangle(clickPosition))
