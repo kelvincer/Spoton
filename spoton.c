@@ -59,10 +59,10 @@ void SetupNewLevelState()
 void DrawGameState()
 {
     DrawPlayerLives();
-    DrawRectangle(50, 50, 700, 20, YELLOW);  // top side
-    DrawRectangle(50, 380, 700, 20, YELLOW); // bottom side
-    DrawRectangle(50, 70, 20, 310, YELLOW);  // left side
-    DrawRectangle(730, 70, 20, 310, YELLOW); // right side
+    DrawRectangle(50, 50, 700, 20, RAYWHITE);  // top side
+    DrawRectangle(50, 380, 700, 20, RAYWHITE); // bottom side
+    DrawRectangle(50, 70, 20, 310, RAYWHITE);  // left side
+    DrawRectangle(730, 70, 20, 310, RAYWHITE); // right side
     DrawText(GAME_NAME, 10, 10, 15, DARKGRAY);
     DrawScoreAndLevel();
     DrawGameTime();
